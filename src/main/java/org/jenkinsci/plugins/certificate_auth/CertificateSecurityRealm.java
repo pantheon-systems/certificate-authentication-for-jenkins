@@ -52,18 +52,18 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  */
 public class CertificateSecurityRealm extends SecurityRealm {
-    private final String header;
+    private final String dn_field;
 
     @DataBoundConstructor
-    public CertificateSecurityRealm(String header) {
-        this.field = field;
+    public CertificateSecurityRealm(String dn_field) {
+        this.dn_field = dn_field;
     }
 
     /**
-     * Name of the HTTP header to look at.
+     * Field of the DN to look at.
      */
-    public String getHeader() {
-        return header;
+    public String getDnField() {
+        return dn_field;
     }
 
     @Override
@@ -80,7 +80,7 @@ public class CertificateSecurityRealm extends SecurityRealm {
             public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
                 HttpServletRequest r = (HttpServletRequest) request;
 
-                String v = r.getHeader(header);
+                String v = ""; //r.getHeader(header);
                 Authentication a;
                 if (v==null) {
                     a = Hudson.ANONYMOUS;
