@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.reverse_proxy_auth;
+package org.jenkinsci.plugins.certificate_auth;
 
 import hudson.Extension;
 import hudson.model.Descriptor;
@@ -48,14 +48,15 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
+ * @author David Strauss
  * @author Kohsuke Kawaguchi
  */
-public class ReverseProxySecurityRealm extends SecurityRealm {
+public class CertificateSecurityRealm extends SecurityRealm {
     private final String header;
 
     @DataBoundConstructor
-    public ReverseProxySecurityRealm(String header) {
-        this.header = header;
+    public CertificateSecurityRealm(String header) {
+        this.field = field;
     }
 
     /**
@@ -113,7 +114,7 @@ public class ReverseProxySecurityRealm extends SecurityRealm {
     @Extension
     public static class DescriptorImpl extends Descriptor<SecurityRealm> {
         public String getDisplayName() {
-            return Messages.ReverseProxySecurityRealm_DisplayName();
+            return Messages.CertificateSecurityRealm_DisplayName();
         }
     }
 }
