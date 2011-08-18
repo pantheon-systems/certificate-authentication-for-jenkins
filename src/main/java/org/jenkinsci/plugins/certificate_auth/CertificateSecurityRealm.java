@@ -38,6 +38,7 @@ import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.springframework.dao.DataAccessException;
 
+import java.security.cert.X509Certificate;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -79,13 +80,18 @@ public class CertificateSecurityRealm extends SecurityRealm {
 
             public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
                 HttpServletRequest r = (HttpServletRequest) request;
+                final X509Certificate[] certChain = (X509Certificate[])
+                  request.getAttribute("javax.servlet.request.X509Certificate");
 
-                String v = ""; //r.getHeader(header);
                 Authentication a;
-                if (v==null) {
+                if (certChain == null || certChain[0] == null) {
                     a = Hudson.ANONYMOUS;
                 } else {
-                    a = new UsernamePasswordAuthenticationToken(v,"",new GrantedAuthority[]{SecurityRealm.AUTHENTICATED_AUTHORITY});
+                    //final String issuer = certChain[0].getIssuerX500Principal().getName();
+                    //final String subject = certChain[0].getSubjectX500Principal().getName();
+                    final String dn = certChain[0].getSubjectDN().getName();
+                    final String uid = dn.split(getDnField() + "=")[1].split(",")[0];
+                    a = new UsernamePasswordAuthenticationToken(uid,"",new GrantedAuthority[]{SecurityRealm.AUTHENTICATED_AUTHORITY});
                 }
 
                 SecurityContextHolder.getContext().setAuthentication(a);
