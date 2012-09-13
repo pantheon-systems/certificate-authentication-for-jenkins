@@ -53,18 +53,18 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  */
 public class CertificateSecurityRealm extends SecurityRealm {
-    private final String dn_field;
+    private final String dnField;
 
     @DataBoundConstructor
-    public CertificateSecurityRealm(String dn_field) {
-        this.dn_field = dn_field;
+    public CertificateSecurityRealm(String dnField) {
+        this.dnField = dnField;
     }
 
     /**
      * Field of the DN to look at.
      */
     public String getDnField() {
-        return dn_field;
+        return dnField;
     }
 
     @Override

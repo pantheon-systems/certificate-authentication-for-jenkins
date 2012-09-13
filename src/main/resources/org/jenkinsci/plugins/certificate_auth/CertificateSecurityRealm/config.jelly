@@ -23,6 +23,6 @@ THE SOFTWARE.
 -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <f:entry title="${%Portion of DN to use for identity}">
-    <f:textbox field="dn_field" default="CN" />
+    <f:textbox field="dnField" default="CN" />
   </f:entry>
 </j:jelly>
