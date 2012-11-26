@@ -48,6 +48,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * @author David Strauss
@@ -55,13 +56,13 @@ import java.util.ArrayList;
  */
 public class CertificateSecurityRealm extends SecurityRealm {
     private final String dnField;
-    private final ArrayList<String> useSecondaryDnOn;
+    private final String useSecondaryDnOn;
     private final String secondaryDnField;
 
     @DataBoundConstructor
-    public CertificateSecurityRealm(String dnField, String[] useSecondaryDnOn, String secondaryDnField) {
+    public CertificateSecurityRealm(String dnField, String useSecondaryDnOn, String secondaryDnField) {
         this.dnField = dnField;
-        this.useSecondaryDnOn = new ArrayList<String>(this.useSecondaryDnOn);
+        this.useSecondaryDnOn = useSecondaryDnOn; 
         this.secondaryDnField = secondaryDnField;
     }
 
@@ -72,7 +73,7 @@ public class CertificateSecurityRealm extends SecurityRealm {
         return dnField;
     }
 
-    public ArrayList<String> getUseSecondaryDnOn() {
+    public String getUseSecondaryDnOn() {
         return useSecondaryDnOn;
     }
 
@@ -102,9 +103,15 @@ public class CertificateSecurityRealm extends SecurityRealm {
                 } else {
                     //final String issuer = certChain[0].getIssuerX500Principal().getName();
                     //final String subject = certChain[0].getSubjectX500Principal().getName();
+                	String[] useSecondaryDnOn = getUseSecondaryDnOn().split(",");
+                	ArrayList<String> useSecondaryDnOnList = new ArrayList<String>();
+                    for (String s: useSecondaryDnOn) {
+                		useSecondaryDnOnList.add(s.trim());
+                	}
                     final String dn = certChain[0].getSubjectDN().getName();
                     String group = dn.split(getDnField() + "=")[1].split(",")[0];
                     String uid;
+                    System.out.println(Arrays.toString(useSecondaryDnOnList.toArray()));
                     if (getUseSecondaryDnOn() != null && getUseSecondaryDnOn().contains(group)) {
                         String username = dn.split(getSecondaryDnField() + "=")[1].split(",")[0];
                         uid = username;
