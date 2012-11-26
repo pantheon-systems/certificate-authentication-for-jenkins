@@ -47,6 +47,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * @author David Strauss
@@ -54,17 +55,29 @@ import java.io.IOException;
  */
 public class CertificateSecurityRealm extends SecurityRealm {
     private final String dnField;
+    private final ArrayList<String> useSecondaryDnOn;
+    private final String secondaryDnField;
 
     @DataBoundConstructor
-    public CertificateSecurityRealm(String dnField) {
+    public CertificateSecurityRealm(String dnField, String[] useSecondaryDnOn, String secondaryDnField) {
         this.dnField = dnField;
+        this.useSecondaryDnOn = new ArrayList<String>(this.useSecondaryDnOn);
+        this.secondaryDnField = secondaryDnField;
     }
 
     /**
      * Field of the DN to look at.
      */
     public String getDnField() {
-        return dnField;
+    	return dnField;
+    }
+
+    public ArrayList<String> getUseSecondaryDnOn() {
+    	return useSecondaryDnOn;
+    }
+
+    public String getSecondaryDnField() {
+    	return secondaryDnField;
     }
 
     @Override
@@ -87,10 +100,17 @@ public class CertificateSecurityRealm extends SecurityRealm {
                 if (certChain == null || certChain[0] == null) {
                     a = Hudson.ANONYMOUS;
                 } else {
-                    //final String issuer = certChain[0].getIssuerX500Principal().getName();
-                    //final String subject = certChain[0].getSubjectX500Principal().getName();
-                    final String dn = certChain[0].getSubjectDN().getName();
-                    final String uid = dn.split(getDnField() + "=")[1].split(",")[0];
+					//final String issuer = certChain[0].getIssuerX500Principal().getName();
+					//final String subject = certChain[0].getSubjectX500Principal().getName();
+					final String dn = certChain[0].getSubjectDN().getName();
+					String group = dn.split(getDnField() + "=")[1].split(",")[0];
+					String uid;
+					if (getUseSecondaryDnOn() != null && getUseSecondaryDnOn().contains(group)) {
+						String username = dn.split(getSecondaryDnField() + "=")[1].split(",")[0];
+						uid = username;
+					} else {
+						uid = group;
+					}
                     a = new UsernamePasswordAuthenticationToken(uid,"",new GrantedAuthority[]{SecurityRealm.AUTHENTICATED_AUTHORITY});
                 }
 
