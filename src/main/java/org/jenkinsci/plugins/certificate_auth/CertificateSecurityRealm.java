@@ -106,7 +106,7 @@ public class CertificateSecurityRealm extends SecurityRealm {
                     String group = dn.split(getDnField() + "=")[1].split(",")[0];
                     String uid;
                     if (getUseSecondaryDnOn() != null && getUseSecondaryDnOn().contains(group)) {
-                    String username = dn.split(getSecondaryDnField() + "=")[1].split(",")[0];
+                        String username = dn.split(getSecondaryDnField() + "=")[1].split(",")[0];
                         uid = username;
                     } else {
                         uid = group;
