@@ -110,7 +110,7 @@ public class CertificateSecurityRealm extends SecurityRealm {
                     final String dn = certChain[0].getSubjectDN().getName();
                     String group = dn.split(getDnField() + "=")[1].split(",")[0];
                     String uid;
-                    if (getUseSecondaryDnOn() != null && getUseSecondaryDnOn().contains(group)) {
+                    if (useSecondaryDnOnList.contains(group)) {
                         String username = dn.split(getSecondaryDnField() + "=")[1].split(",")[0];
                         uid = username;
                     } else {
