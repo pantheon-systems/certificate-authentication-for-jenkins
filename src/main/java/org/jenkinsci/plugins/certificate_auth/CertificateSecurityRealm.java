@@ -103,7 +103,7 @@ public class CertificateSecurityRealm extends SecurityRealm {
                     GrantedAuthority[] authorities = new GrantedAuthority[] {
                             SecurityRealm.AUTHENTICATED_AUTHORITY,
                             new GrantedAuthorityImpl(group)
-                		};
+                        };
 
                     a = new UsernamePasswordAuthenticationToken(username, "", authorities);
                 }
