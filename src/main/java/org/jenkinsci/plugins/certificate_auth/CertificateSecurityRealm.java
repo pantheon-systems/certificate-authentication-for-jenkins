@@ -35,9 +35,9 @@ import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.acegisecurity.GrantedAuthorityImpl;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.springframework.dao.DataAccessException;
-import org.acegisecurity.GrantedAuthorityImpl;
 
 import java.security.cert.X509Certificate;
 import javax.servlet.Filter;
