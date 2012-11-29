@@ -37,6 +37,7 @@ import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.springframework.dao.DataAccessException;
+import org.acegisecurity.GrantedAuthorityImpl;
 
 import java.security.cert.X509Certificate;
 import javax.servlet.Filter;
@@ -47,37 +48,30 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * @author David Strauss
  * @author Kohsuke Kawaguchi
  */
 public class CertificateSecurityRealm extends SecurityRealm {
-    private final String dnField;
-    private final String useSecondaryDnOn;
-    private final String secondaryDnField;
+    private final String userField;
+    private final String groupField;
 
     @DataBoundConstructor
-    public CertificateSecurityRealm(String dnField, String useSecondaryDnOn, String secondaryDnField) {
-        this.dnField = dnField;
-        this.useSecondaryDnOn = useSecondaryDnOn; 
-        this.secondaryDnField = secondaryDnField;
+    public CertificateSecurityRealm(String userField, String groupField) {
+        this.userField = userField;
+        this.groupField = groupField;
     }
 
     /**
      * Field of the DN to look at.
      */
-    public String getDnField() {
-        return dnField;
+    public String getUserField() {
+        return this.userField;
     }
 
-    public String getUseSecondaryDnOn() {
-        return useSecondaryDnOn;
-    }
-
-    public String getSecondaryDnField() {
-        return secondaryDnField;
+    public String getGroupField() {
+        return this.groupField;
     }
 
     @Override
@@ -100,23 +94,17 @@ public class CertificateSecurityRealm extends SecurityRealm {
                 if (certChain == null || certChain[0] == null) {
                     a = Hudson.ANONYMOUS;
                 } else {
-                    //final String issuer = certChain[0].getIssuerX500Principal().getName();
-                    //final String subject = certChain[0].getSubjectX500Principal().getName();
-                    String[] useSecondaryDnOn = getUseSecondaryDnOn().split(",");
-                    ArrayList<String> useSecondaryDnOnList = new ArrayList<String>();
-                    for (String s: useSecondaryDnOn) {
-                        useSecondaryDnOnList.add(s.trim());
-                    }
+
                     final String dn = certChain[0].getSubjectDN().getName();
-                    String group = dn.split(getDnField() + "=")[1].split(",")[0];
-                    String uid;
-                    if (useSecondaryDnOnList.contains(group)) {
-                        String username = dn.split(getSecondaryDnField() + "=")[1].split(",")[0];
-                        uid = username;
-                    } else {
-                        uid = group;
-                    }
-                    a = new UsernamePasswordAuthenticationToken(uid,"",new GrantedAuthority[]{SecurityRealm.AUTHENTICATED_AUTHORITY});
+
+                    final String username = dn.split(getUserField() + "=")[1].split(",")[0];
+                    final String group = dn.split(getGroupField() + "=")[1].split(",")[0];
+
+                    GrantedAuthority[] authorities = new GrantedAuthority[2];
+                    authorities[0] = SecurityRealm.AUTHENTICATED_AUTHORITY;
+                    authorities[1] = new GrantedAuthorityImpl(group);
+
+                    a = new UsernamePasswordAuthenticationToken(username, "", authorities);
                 }
 
                 SecurityContextHolder.getContext().setAuthentication(a);
