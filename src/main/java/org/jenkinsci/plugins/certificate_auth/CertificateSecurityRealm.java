@@ -100,9 +100,10 @@ public class CertificateSecurityRealm extends SecurityRealm {
                     final String username = dn.split(getUserField() + "=")[1].split(",")[0];
                     final String group = dn.split(getGroupField() + "=")[1].split(",")[0];
 
-                    GrantedAuthority[] authorities = new GrantedAuthority[2];
-                    authorities[0] = SecurityRealm.AUTHENTICATED_AUTHORITY;
-                    authorities[1] = new GrantedAuthorityImpl(group);
+					GrantedAuthority[] authorities = new GrantedAuthority[] {
+							SecurityRealm.AUTHENTICATED_AUTHORITY,
+							new GrantedAuthorityImpl(group) 
+						};
 
                     a = new UsernamePasswordAuthenticationToken(username, "", authorities);
                 }
