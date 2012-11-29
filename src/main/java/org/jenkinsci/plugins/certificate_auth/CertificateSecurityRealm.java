@@ -30,6 +30,7 @@ import hudson.security.SecurityRealm;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationManager;
 import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.userdetails.UserDetails;
@@ -53,18 +54,24 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  */
 public class CertificateSecurityRealm extends SecurityRealm {
-    private final String dnField;
+    private final String userField;
+    private final String groupField;
 
     @DataBoundConstructor
-    public CertificateSecurityRealm(String dnField) {
-        this.dnField = dnField;
+    public CertificateSecurityRealm(String userField, String groupField) {
+        this.userField = userField;
+        this.groupField = groupField;
     }
 
     /**
      * Field of the DN to look at.
      */
-    public String getDnField() {
-        return dnField;
+    public String getUserField() {
+        return this.userField;
+    }
+
+    public String getGroupField() {
+        return this.groupField;
     }
 
     @Override
@@ -87,11 +94,18 @@ public class CertificateSecurityRealm extends SecurityRealm {
                 if (certChain == null || certChain[0] == null) {
                     a = Hudson.ANONYMOUS;
                 } else {
-                    //final String issuer = certChain[0].getIssuerX500Principal().getName();
-                    //final String subject = certChain[0].getSubjectX500Principal().getName();
+
                     final String dn = certChain[0].getSubjectDN().getName();
-                    final String uid = dn.split(getDnField() + "=")[1].split(",")[0];
-                    a = new UsernamePasswordAuthenticationToken(uid,"",new GrantedAuthority[]{SecurityRealm.AUTHENTICATED_AUTHORITY});
+
+                    final String username = dn.split(getUserField() + "=")[1].split(",")[0];
+                    final String group = dn.split(getGroupField() + "=")[1].split(",")[0];
+
+                    GrantedAuthority[] authorities = new GrantedAuthority[] {
+                            SecurityRealm.AUTHENTICATED_AUTHORITY,
+                            new GrantedAuthorityImpl(group)
+                        };
+
+                    a = new UsernamePasswordAuthenticationToken(username, "", authorities);
                 }
 
                 SecurityContextHolder.getContext().setAuthentication(a);
