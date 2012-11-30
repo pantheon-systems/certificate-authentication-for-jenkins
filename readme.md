@@ -1,3 +1,8 @@
+# Certificate Authentication for Jenkins
+
+This Jenkins plugin allows for extracting OU and DN fields from client-side
+SSL certificates for authentication purposes.  It is in active use at Pantheon.
+
 Building and installing
 =======================
 
